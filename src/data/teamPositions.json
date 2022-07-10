@@ -1,5 +1,8 @@
 [
-  { "name": "Neill", "latLng": [51.5, -0.09] },
+  {
+    "name": "Bob's Burgers",
+    "latLng": { "lat": 54.9, "lng": -2.93 }
+  },
   { "name": "Jane", "latLng": [50.1, -0.1] },
   { "name": "Joe", "latLng": [52.5, 1.3] }
 ]

@@ -14,7 +14,8 @@ interface PersonPosition {
   latLng: LatLngExpression;
 }
 export default function Two() {
-
+  const [tempPosition, setTempPosition] = useState<LatLngExpression>(null!)
+  const [tempName, setTempName] = useState<string>('')
 
   const initialPosition: LatLngExpression = [51.505, -0.09];
 
@@ -23,51 +24,62 @@ export default function Two() {
     <div>
       <h1>react-leaflet demo</h1>
       <hr />
+      Person name:
+      <input
+        type="text"
+        value={tempName}
+        onChange={(e) => setTempName(e.target.value)}
+      />
+      <hr />
+      Temp position:<textarea value={JSON.stringify(tempPosition, null, 2)} />
+
       <MapContainer
         center={initialPosition}
-        zoom={13}
-        scrollWheelZoom={false}
+        zoom={7}
+        scrollWheelZoom={true}
       >
 
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MyMapContent />
+        <MyMapContent currentName={tempName} onClick={setTempPosition} />
       </MapContainer>
     </div >
   );
 }
+interface MyMapContentProps {
+  onClick: (position: LatLngExpression) => void;
+  currentName: string;//name (from form) to be used when making a new marker
+}
 
-function MyMapContent() {
+function MyMapContent(props: MyMapContentProps) {
   const [personPositions, setPersonPositions] = useState<PersonPosition[]>(teamPositions as PersonPosition[]);
-  const [tempPosition, setTempPosition] = useState<LatLngExpression>(null!)
   const map = useMapEvents({
     dblclick(ev) {
       console.log("click event", ev.latlng)
-      setTempPosition(ev.latlng)
-      setPersonPositions(prev => [...prev, { name: "new" + new Date(), latLng: ev.latlng }])
+      props.onClick(ev.latlng)
+      setPersonPositions(prev => [...prev, { name: props.currentName, latLng: ev.latlng }])
       // map.locate()
 
     },
 
     locationfound(e) {
-      setTempPosition(e.latlng)
       map.flyTo(e.latlng, map.getZoom())
     },
   })
 
   return <>{
     personPositions.map((personPosition, index) => (
-      <MyLocationMarker personPos={personPosition} />)
+      <PersonLocationMarker personPos={personPosition} />)
     )}
   </>
 }
 
-interface MyLocationMarkerProps {
+interface PersonLocationMarkerProps {
   personPos: PersonPosition;
 }
-function MyLocationMarker(props: MyLocationMarkerProps) {
+function PersonLocationMarker(props: PersonLocationMarkerProps) {
 
   //https://leafletjs.com/reference.html#icon-option
   const myIcon = L.icon({
